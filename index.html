@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ CYBER 54 — ULTIMATE RED TEAM SUITE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Hind+Siliguri:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#03030a;font-family:'Rajdhani','Hind Siliguri',sans-serif;
+  min-height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;
+  padding:10px;color:#00f0ff;
+}
+.login-screen{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at center,#0a0a1a 0%,#03030a 100%);
+  display:flex;justify-content:center;align-items:center;
+  z-index:2000;transition:all 0.8s cubic-bezier(0.77,0,0.18,1);
+}
+.login-screen.hidden{opacity:0;transform:scale(1.1);pointer-events:none;}
+.login-box{
+  background:linear-gradient(160deg,rgba(10,10,24,0.98),rgba(13,13,32,0.98));
+  border:1px solid rgba(0,240,255,0.12);border-radius:20px;padding:50px 40px;
+  max-width:420px;width:90vw;text-align:center;position:relative;
+  box-shadow:0 0 80px rgba(0,240,255,0.03);
+}
+.login-box::before{
+  content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;
+  border-radius:21px;
+  background:linear-gradient(135deg,#00f0ff,#0055ff,#aa00ff,#ff0066,#ffcc00,#00f0ff);
+  z-index:-1;animation:borderFlow 4s linear infinite;opacity:0.35;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
+}
+@keyframes borderFlow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+.login-icon{font-size:60px;margin-bottom:10px;animation:iconPulse 2s ease-in-out infinite;}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.login-title{
+  font-family:'Orbitron',monospace;font-size:32px;font-weight:900;
+  letter-spacing:6px;text-transform:uppercase;
+  background:linear-gradient(90deg,#00f0ff,#0055ff,#aa00ff,#ff0066,#ffcc00);
+  background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:titleShimmer 4s ease infinite;margin-bottom:5px;
+}
+@keyframes titleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.login-sub{font-size:11px;letter-spacing:4px;color:rgba(0,240,255,0.2);text-transform:uppercase;margin-bottom:15px;}
+.login-bn{font-family:'Hind Siliguri',sans-serif;font-size:13px;color:rgba(255,200,0,0.5);margin-bottom:20px;line-height:1.6;}
+.login-input{
+  width:100%;padding:14px 18px;background:rgba(0,240,255,0.03);
+  border:1px solid rgba(0,240,255,0.1);border-radius:8px;color:#00f0ff;
+  font-family:'Orbitron',monospace;font-size:16px;text-align:center;
+  outline:none;letter-spacing:4px;margin-bottom:12px;transition:0.3s;
+}
+.login-input:focus{border-color:rgba(0,240,255,0.3);box-shadow:0 0 30px rgba(0,240,255,0.05);}
+.login-input::placeholder{font-family:'Rajdhani',sans-serif;letter-spacing:2px;font-size:13px;color:rgba(0,240,255,0.1);}
+.login-btn{
+  width:100%;padding:14px;border:1px solid rgba(0,240,255,0.2);
+  background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,102,255,0.05));
+  color:#00f0ff;font-family:'Orbitron',monospace;font-size:14px;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all 0.3s;
+}
+.login-btn:hover{border-color:#00f0ff;box-shadow:0 0 40px rgba(0,240,255,0.08);transform:translateY(-2px);}
+.login-error{font-family:'Hind Siliguri',sans-serif;color:#ff3260;font-size:12px;margin-top:8px;min-height:20px;opacity:0;transition:0.3s;}
+.login-error.show{opacity:1;}
+.login-footer{margin-top:18px;font-family:'Hind Siliguri',sans-serif;font-size:11px;color:rgba(0,240,255,0.15);line-height:1.8;}
+.login-footer .tg{color:#ffcc00;text-decoration:none;border-bottom:1px solid rgba(255,200,0,0.2);}
+
+.loader-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#03030a;z-index:1999;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;opacity:0;pointer-events:none;
+  transition:all 0.6s ease;
+}
+.loader-overlay.active{opacity:1;pointer-events:all;}
+.loader-code{
+  font-family:'Orbitron',monospace;font-size:13px;color:rgba(0,240,255,0.08);
+  max-width:650px;width:90vw;max-height:300px;overflow:hidden;
+  text-align:left;line-height:1.8;letter-spacing:1px;
+  white-space:pre-wrap;word-break:break-all;
+}
+.loader-status{
+  font-family:'Orbitron',monospace;font-size:18px;font-weight:700;
+  color:#00f0ff;margin-top:30px;letter-spacing:6px;text-transform:uppercase;
+  animation:pulseText 1.5s ease infinite;
+}
+@keyframes pulseText{0%,100%{opacity:1}50%{opacity:0.3}}
+.loader-status .s-dot{display:inline-block;width:10px;height:10px;background:#00ff88;border-radius:50%;margin-right:12px;animation:pulseDot2 1s ease infinite;}
+@keyframes pulseDot2{0%,100%{opacity:1;box-shadow:0 0 20px #00ff88}50%{opacity:0.3;box-shadow:0 0 5px #00ff88}}
+.loader-final{
+  font-family:'Orbitron',monospace;font-size:42px;font-weight:900;
+  background:linear-gradient(90deg,#00f0ff,#0055ff,#aa00ff,#ff0066,#ffcc00);
+  background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:titleShimmer 2s ease infinite;margin-top:20px;
+  text-align:center;letter-spacing:8px;opacity:0;transform:scale(0.5);
+  transition:all 0.8s cubic-bezier(0.68,-0.55,0.27,1.55);
+}
+.loader-final.show{opacity:1;transform:scale(1);}
+
+.cinema-top,.cinema-bottom{
+  position:fixed;left:0;right:0;height:60px;
+  background:#000;z-index:1000;pointer-events:none;
+  transition:all 1.2s cubic-bezier(0.77,0,0.18,1);
+}
+.cinema-top{top:0;}.cinema-bottom{bottom:0;}
+.cinema-top.open,.cinema-bottom.open{height:0;}
+.scanlines{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.015) 2px,rgba(0,240,255,0.015) 4px);
+  pointer-events:none;z-index:998;
+}
+.vignette{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  box-shadow:inset 0 0 200px rgba(0,0,0,0.85);pointer-events:none;z-index:997;
+}
+
+.container{
+  position:relative;width:1200px;max-width:98vw;
+  background:linear-gradient(160deg,rgba(10,10,24,0.97),rgba(13,13,32,0.97));
+  border:1px solid rgba(0,240,255,0.08);border-radius:20px;padding:25px 20px;
+  box-shadow:0 0 60px rgba(0,240,255,0.02);
+  opacity:0;transform:scale(0.95) translateY(20px);
+  transition:all 0.8s ease;max-height:98vh;overflow-y:auto;
+}
+.container.visible{opacity:1;transform:scale(1) translateY(0);}
+.container::before{
+  content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;
+  border-radius:21px;
+  background:linear-gradient(135deg,#00f0ff,#0055ff,#aa00ff,#ff0066,#ffcc00,#00f0ff);
+  z-index:-1;animation:borderFlow 4s linear infinite;opacity:0.3;
+  -webkit-mask:linear-gradient(#fff 0 0)content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
+}
+.container::-webkit-scrollbar{width:3px;}
+.container::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.05);border-radius:2px;}
+
+.watermark-bg{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);font-family:'Orbitron',monospace;
+  font-size:120px;font-weight:900;color:rgba(0,240,255,0.012);
+  letter-spacing:20px;pointer-events:none;z-index:0;
+  animation:watermarkPulse 8s ease infinite;white-space:nowrap;
+}
+@keyframes watermarkPulse{0%,100%{opacity:0.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.6;transform:translate(-50%,-50%) scale(1.05)}}
+
+.header{text-align:center;margin-bottom:16px;position:relative;z-index:1;}
+.vip-badge{
+  display:inline-flex;align-items:center;gap:8px;font-size:9px;
+  letter-spacing:4px;text-transform:uppercase;color:rgba(255,200,0,0.6);
+  border:1px solid rgba(255,200,0,0.1);padding:4px 18px;
+  border-radius:20px;margin-bottom:6px;background:rgba(255,200,0,0.02);
+}
+.main-title{
+  font-family:'Orbitron',monospace;font-size:38px;font-weight:900;
+  letter-spacing:8px;text-transform:uppercase;
+  background:linear-gradient(90deg,#00f0ff,#0055ff,#aa00ff,#ff0066,#ffcc00);
+  background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:titleShimmer 4s ease infinite;line-height:1.1;
+}
+.subtitle-line{font-size:10px;letter-spacing:4px;color:rgba(0,240,255,0.2);text-transform:uppercase;margin-top:3px;}
+.info-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 14px;background:rgba(0,240,255,0.02);
+  border:1px solid rgba(0,240,255,0.05);border-radius:8px;
+  margin-bottom:12px;font-size:10px;flex-wrap:wrap;gap:4px;position:relative;z-index:1;
+}
+.info-item{display:flex;align-items:center;gap:5px;}
+.info-item .lbl{color:rgba(0,240,255,0.25);letter-spacing:1px;}
+.info-item .val{color:#00f0ff;font-weight:700;}
+.dot-green{width:6px;height:6px;border-radius:50%;background:#00ff88;display:inline-block;animation:pulseDot 1.5s ease infinite;}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.cat-tabs{
+  display:flex;gap:2px;margin-bottom:8px;flex-wrap:wrap;
+  position:relative;z-index:1;
+}
+.cat-tab{
+  padding:6px 14px;border:1px solid rgba(0,240,255,0.04);
+  background:rgba(0,240,255,0.01);color:rgba(0,240,255,0.25);
+  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;border-radius:5px;
+  cursor:pointer;transition:all 0.3s;
+}
+.cat-tab:hover{color:rgba(0,240,255,0.5);border-color:rgba(0,240,255,0.08);}
+.cat-tab.active{color:#00f0ff;background:rgba(0,240,255,0.04);border-color:rgba(0,240,255,0.12);box-shadow:0 0 20px rgba(0,240,255,0.02);}
+
+.tools-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:6px;margin-bottom:10px;position:relative;z-index:1;
+}
+.tool-card{
+  background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.04);
+  border-radius:6px;padding:10px 8px;cursor:pointer;
+  transition:all 0.3s;text-align:center;position:relative;overflow:hidden;
+}
+.tool-card::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(transparent,rgba(0,240,255,0.03),transparent);
+  animation:cardGlow 4s linear infinite;opacity:0;transition:0.3s;
+}
+.tool-card:hover::before{opacity:1;}
+@keyframes cardGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.tool-card:hover{border-color:rgba(0,240,255,0.15);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,240,255,0.05);}
+.tool-card .icon{font-size:24px;margin-bottom:4px;}
+.tool-card .name{font-size:10px;letter-spacing:1px;color:#00f0ff;font-weight:700;}
+.tool-card .desc{font-size:7px;color:rgba(0,240,255,0.15);margin-top:2px;letter-spacing:0.5px;}
+.tool-card .status{
+  position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;
+  background:rgba(0,255,136,0.15);animation:pulseDot 2s ease infinite;
+}
+.tool-card.selected{border-color:#ffcc00;box-shadow:0 0 20px rgba(255,200,0,0.05);}
+.tool-card.selected .status{background:#ffcc00;}
+
+.workspace{
+  background:rgba(0,0,0,0.25);border:1px solid rgba(0,240,255,0.04);
+  border-radius:8px;padding:12px 14px;margin-bottom:10px;
+  position:relative;z-index:1;min-height:80px;
+}
+.workspace-title{
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  color:rgba(0,240,255,0.15);text-transform:uppercase;margin-bottom:8px;
+}
+.workspace .input-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.workspace .input-group{flex:1;min-width:120px;}
+.workspace .input-group label{
+  display:block;font-size:7px;letter-spacing:1.5px;
+  text-transform:uppercase;color:rgba(0,240,255,0.2);margin-bottom:2px;
+}
+.workspace .input-group input,.workspace .input-group select,.workspace .input-group textarea{
+  width:100%;padding:6px 10px;background:rgba(0,240,255,0.02);
+  border:1px solid rgba(0,240,255,0.05);border-radius:4px;color:#00f0ff;
+  font-family:'Rajdhani',sans-serif;font-size:11px;outline:none;
+}
+.workspace .input-group input:focus,.workspace .input-group select:focus{border-color:rgba(0,240,255,0.15);}
+.workspace .input-group select option{background:#0a0a18;color:#00f0ff;}
+.workspace .input-group textarea{min-height:40px;resize:vertical;}
+.bn-label{font-family:'Hind Siliguri',sans-serif;font-size:9px;color:rgba(0,240,255,0.15);margin-bottom:2px;}
+
+.actions{
+  display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;position:relative;z-index:1;
+}
+.btn{
+  padding:8px 14px;border:1px solid rgba(0,240,255,0.08);
+  background:rgba(0,240,255,0.01);color:#00f0ff;
+  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;border-radius:4px;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn:hover{border-color:rgba(0,240,255,0.2);transform:translateY(-1px);}
+.btn.primary{background:linear-gradient(135deg,rgba(0,240,255,0.05),rgba(0,102,255,0.03));border-color:rgba(0,240,255,0.1);}
+.btn.primary:hover{background:linear-gradient(135deg,rgba(0,240,255,0.1),rgba(0,102,255,0.06));}
+.btn.danger{border-color:rgba(255,50,80,0.15);color:#ff3260;}
+.btn.danger:hover{border-color:#ff3260;}
+.btn.success{border-color:rgba(0,255,136,0.15);color:#00ff88;}
+.btn.success:hover{border-color:#00ff88;}
+.btn.warning{border-color:rgba(255,200,0,0.15);color:#ffcc00;}
+.btn.warning:hover{border-color:#ffcc00;}
+.btn:disabled{opacity:0.15;cursor:not-allowed;transform:none!important;}
+
+.prog-wrap{display:none;margin-bottom:8px;position:relative;z-index:1;}
+.prog-wrap.active{display:block;}
+.prog-bar{width:100%;height:2px;background:rgba(0,240,255,0.03);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#0055ff,#aa00ff);border-radius:2px;transition:width 0.15s;}
+.prog-label{display:flex;justify-content:space-between;font-size:8px;margin-top:2px;color:rgba(0,240,255,0.15);}
+
+.console{
+  background:rgba(0,0,0,0.3);border:1px solid rgba(0,240,255,0.03);
+  border-radius:6px;padding:8px 12px;max-height:100px;
+  overflow-y:auto;font-size:9px;font-family:monospace;
+  color:rgba(0,240,255,0.25);position:relative;z-index:1;
+}
+.console::-webkit-scrollbar{width:2px;}
+.console::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.04);border-radius:2px;}
+.console .ln{padding:1px 0;border-bottom:1px solid rgba(0,240,255,0.003);}
+.console .ln .ts{color:rgba(0,240,255,0.06);margin-right:6px;font-size:8px;}
+.console .ln.i{color:rgba(0,240,255,0.25);}
+.console .ln.s{color:#00ff88;}
+.console .ln.e{color:#ff3260;}
+.console .ln.h{color:#ffcc00;}
+
+.admin-panel{
+  position:fixed;top:0;right:-380px;width:360px;max-width:90vw;height:100%;
+  background:linear-gradient(180deg,rgba(5,5,15,0.99),rgba(10,10,24,0.99));
+  border-left:1px solid rgba(0,240,255,0.06);
+  z-index:1500;transition:all 0.5s cubic-bezier(0.77,0,0.18,1);
+  padding:30px 20px;overflow-y:auto;backdrop-filter:blur(20px);
+}
+.admin-panel.open{right:0;}
+.admin-panel-close{
+  position:absolute;top:12px;right:12px;background:none;border:none;
+  color:rgba(0,240,255,0.2);font-size:20px;cursor:pointer;
+  transition:0.3s;font-family:'Rajdhani',sans-serif;
+}
+.admin-panel-close:hover{color:#ff3260;transform:rotate(90deg);}
+.admin-title{
+  font-family:'Orbitron',monospace;font-size:16px;font-weight:700;
+  color:#ffcc00;letter-spacing:3px;margin-bottom:20px;
+  border-bottom:1px solid rgba(255,200,0,0.05);padding-bottom:12px;
+}
+.admin-avatar{
+  width:80px;height:80px;border-radius:50%;margin:0 auto 12px;
+  border:2px solid rgba(255,200,0,0.15);display:flex;align-items:center;justify-content:center;
+  font-size:36px;background:rgba(255,200,0,0.02);
+}
+.admin-name{font-family:'Orbitron',monospace;font-size:18px;color:#00f0ff;text-align:center;letter-spacing:2px;}
+.admin-title2{font-size:10px;color:rgba(0,240,255,0.2);text-align:center;letter-spacing:2px;margin-bottom:15px;}
+.admin-badge{
+  display:inline-block;padding:4px 16px;border:1px solid rgba(255,200,0,0.1);
+  border-radius:20px;color:#ffcc00;font-size:8px;letter-spacing:2px;
+  background:rgba(255,200,0,0.02);
+}
+
+.notif{
+  position:fixed;top:20px;right:20px;z-index:3000;
+  background:rgba(5,5,15,0.95);border:1px solid rgba(0,240,255,0.08);
+  border-radius:8px;padding:12px 18px;max-width:350px;
+  backdrop-filter:blur(10px);transform:translateX(120%);opacity:0;
+  transition:all 0.5s cubic-bezier(0.68,-0.55,0.27,1.55);
+}
+.notif.show{transform:translateX(0);opacity:1;}
+.notif .n-title{font-family:'Orbitron',monospace;font-size:10px;color:#00f0ff;letter-spacing:1px;}
+.notif .n-msg{font-size:11px;color:rgba(0,240,255,0.4);margin-top:2px;}
+
+@media(max-width:700px){
+  .container{padding:14px 10px;}
+  .main-title{font-size:24px;letter-spacing:4px;}
+  .tools-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+  .watermark-bg{font-size:60px;letter-spacing:10px;}
+  .cinema-top,.cinema-bottom{height:40px;}
+  .login-box{padding:30px 20px;}
+  .login-title{font-size:24px;}
+  .loader-final{font-size:28px;}
+  .admin-panel{width:300px;right:-320px;}
+  .workspace .input-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"><div class="n-title" id="nTitle">⚡ SYSTEM</div><div class="n-msg" id="nMsg">Ready</div></div>
+
+<div class="login-screen" id="loginScreen">
+<div class="login-box">
+  <div class="login-icon">⚡</div>
+  <div class="login-title">CYBER 54</div>
+  <div class="login-sub">◈ ULTIMATE RED TEAM SUITE ◈</div>
+  <div class="login-bn">🔐 <b style="color:#ffcc00;">সিকিউরিটি কী</b> দিন — শুধুমাত্র অনুমোদিত ব্যবহারকারী<br>⚠️ এই টুল শুধুমাত্র পেন্টেস্ট ও এথিক্যাল হ্যাকিং এর জন্য</div>
+  <input type="password" class="login-input" id="securityKey" placeholder="•••• ENTER KEY ••••" autocomplete="off" maxlength="20">
+  <button class="login-btn" onclick="verifyKey()">⟳ UNLOCK</button>
+  <div class="login-error" id="loginError">❌ ভুল কী! আবার চেষ্টা করুন।</div>
+  <div class="login-footer">
+    ⚡ <b style="color:#ffcc00;">Cyber 54 — Premium Security Suite</b><br>
+    📞 Telegram: <a href="https://t.me/@cyber_54_admin" class="tg" target="_blank">@cyber_54_admin</a><br>
+    <span style="font-size:9px;color:rgba(0,240,255,0.06);">Version 8.0 | License: Saiful's VIP ∞</span>
+  </div>
+</div>
+</div>
+
+<div class="loader-overlay" id="loaderOverlay">
+  <div class="loader-code" id="loaderCode"></div>
+  <div class="loader-status"><span class="s-dot"></span><span id="loaderStatus">INITIALIZING</span></div>
+  <div class="loader-final" id="loaderFinal">⚡ SERVER ACTIVE ⚡</div>
+</div>
+
+<div class="cinema-top" id="topBar"></div>
+<div class="cinema-bottom" id="bottomBar"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div class="admin-panel" id="adminPanel">
+  <button class="admin-panel-close" onclick="toggleAdmin()">✕</button>
+  <div class="admin-avatar">👑</div>
+  <div class="admin-name">SAIFUL ISLAM SAMI</div>
+  <div class="admin-title2">Managing Director & CEO — Cyber 54</div>
+  <div style="text-align:center;"><span class="admin-badge">✦ FOUNDER & CHIEF SECURITY OFFICER ✦</span></div>
+  <div style="margin-top:10px;"><hr style="border:none;border-top:1px solid rgba(0,240,255,0.03);"></div>
+  <div style="margin-top:12px;background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:6px;padding:10px;text-align:center;">
+    <span style="font-family:'Hind Siliguri',sans-serif;font-size:11px;color:rgba(0,240,255,0.15);line-height:1.8;">
+      🛡️ <b style="color:#ffcc00;">Cyber 54</b> প্রিমিয়াম সিকিউরিটি স্যুট<br>
+      👑 প্রতিষ্ঠাতা: <b style="color:#00f0ff;">Saiful Islam Sami</b><br>
+      📌 শুধুমাত্র অনুমোদিত পেন্টেস্টের জন্য
+    </span>
+  </div>
+  <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+    <div style="background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:5px;padding:8px;text-align:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;color:#00f0ff;">∞</div>
+      <div style="font-size:7px;color:rgba(0,240,255,0.15);letter-spacing:1px;text-transform:uppercase;">License</div>
+    </div>
+    <div style="background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:5px;padding:8px;text-align:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;color:#00f0ff;">54+</div>
+      <div style="font-size:7px;color:rgba(0,240,255,0.15);letter-spacing:1px;text-transform:uppercase;">Tools</div>
+    </div>
+    <div style="background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:5px;padding:8px;text-align:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;color:#00f0ff;">24/7</div>
+      <div style="font-size:7px;color:rgba(0,240,255,0.15);letter-spacing:1px;text-transform:uppercase;">Support</div>
+    </div>
+    <div style="background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:5px;padding:8px;text-align:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;color:#ffcc00;">VIP</div>
+      <div style="font-size:7px;color:rgba(0,240,255,0.15);letter-spacing:1px;text-transform:uppercase;">Status</div>
+    </div>
+  </div>
+  <div style="margin-top:15px;background:rgba(0,240,255,0.01);border:1px solid rgba(0,240,255,0.03);border-radius:6px;padding:10px;text-align:center;">
+    <span style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;color:rgba(0,240,255,0.1);">SYSTEM INTEGRITY: 100%</span><br>
+    <span style="font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#00ff88;">⚡ ACTIVE</span>
+  </div>
+</div>
+
+<div class="container" id="mainContainer">
+<div class="watermark-bg">CYBER 54</div>
+
+<div class="header">
+  <div class="vip-badge">✦ CYBER 54 · PREMIUM LICENSE ✦</div>
+  <div class="main-title">CYBER 54</div>
+  <div class="subtitle-line">◈ ULTIMATE RED TEAM SUITE v8.0 ◈</div>
+</div>
+
+<div class="info-bar">
+  <div class="info-item"><span class="dot-green"></span><span class="lbl">Status:</span><span class="val">Active</span></div>
+  <div class="info-item"><span class="lbl">Session:</span><span class="val" id="sessionId">C54-XXXX</span></div>
+  <div class="info-item"><span class="lbl">License:</span><span class="val" style="color:#ffcc00;">Saiful's VIP ∞</span></div>
+  <div class="info-item"><span class="lbl">Tool:</span><span class="val" id="currentTool">—</span></div>
+  <div class="info-item"><span class="lbl">Admin:</span><span class="val" style="color:#ffcc00;cursor:pointer;" onclick="toggleAdmin()">👑 Panel</span></div>
+</div>
+
+<div class="cat-tabs">
+  <button class="cat-tab active" onclick="switchCat('all')">🔴 All Tools</button>
+  <button class="cat-tab" onclick="switchCat('wifi')">📶 WiFi</button>
+  <button class="cat-tab" onclick="switchCat('web')">🌐 Web</button>
+  <button class="cat-tab" onclick="switchCat('social')">🎭 Social</button>
+  <button class="cat-tab" onclick="switchCat('network')">🖧 Network</button>
+  <button class="cat-tab" onclick="switchCat('exploit')">💥 Exploit</button>
+  <button class="cat-tab" onclick="switchCat('crack')">🔐 Crack</button>
+  <button class="cat-tab" onclick="switchCat('osint')">🔍 OSINT</button>
+  <button class="cat-tab" onclick="switchCat('down')">⛔ Down</button>
+  <button class="cat-tab" onclick="switchCat('fb')">📘 FB</button>
+</div>
+
+<div class="tools-grid" id="toolsGrid"></div>
+
+<div class="workspace" id="workspace">
+  <div class="workspace-title">⚡ [ TOOL WORKSPACE ] — Select a tool to begin</div>
+  <div id="workspaceContent">
+    <div style="text-align:center;padding:20px;color:rgba(0,240,255,0.08);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;">
+      ◈ উপরের যেকোনো টুল সিলেক্ট করুন ◈
+    </div>
+  </div>
+</div>
+
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-label"><span id="progAction">Initializing...</span><span id="progPercent">0%</span></div>
+</div>
+
+<div class="console" id="console">
+  <div class="ln i"><span class="ts">[SYS]</span> Cyber 54 v8.0 loaded — Saiful's VIP Suite</div>
+  <div class="ln i"><span class="ts">[SYS]</span> 🔒 Waiting for authorization...</div>
+</div>
+</div>
+
+<script>
+const SECRET_KEY = "jjsaiful";
+
+function verifyKey(){
+  var keyInput = document.getElementById('securityKey');
+  var error = document.getElementById('loginError');
+  var key = keyInput.value.trim().toLowerCase();
+  if(key === SECRET_KEY){
+    error.classList.remove('show');
+    document.getElementById('loginScreen').classList.add('hidden');
+    var loader = document.getElementById('loaderOverlay');
+    loader.classList.add('active');
+    cinematicBoot();
+  } else {
+    error.textContent = '❌ ভুল কী! "' + keyInput.value + '" সঠিক নয়। আবার চেষ্টা করুন।';
+    error.classList.add('show');
+    keyInput.value = '';
+    keyInput.focus();
+    keyInput.style.borderColor = '#ff3260';
+    setTimeout(function(){ keyInput.style.borderColor = ''; }, 1500);
+  }
+}
+
+document.getElementById('securityKey').addEventListener('keydown',function(e){
+  if(e.key === 'Enter') verifyKey();
+});
+
+var codeLines = [
+  '[BOOT] Cyber 54 v8.0 — Premium Red Team Suite',
+  '[BOOT] Loading kernel modules... OK',
+  '[SEC] AES-256 encryption initialized',
+  '[SEC] Secure channel established [127.0.0.1:8443]',
+  '[NET] Network interfaces detected: eth0, wlan0, lo',
+  '[WIFI] Wireless extensions loaded (nl80211)',
+  '[WIFI] Available adapters: wlan0mon (monitor mode)',
+  '[TOOL] Loading tool database... 54 tools loaded',
+  '[TOOL] Aircrack-ng suite — READY',
+  '[TOOL] Reaver — WPS attack module — READY',
+  '[TOOL] Wifite — Automated auditor — READY',
+  '[TOOL] Fluxion — Rogue AP framework — READY',
+  '[TOOL] Bettercap — MITM framework — READY',
+  '[TOOL] Kismet — Wireless IDS — READY',
+  '[TOOL] Hydra — Brute force engine — READY',
+  '[TOOL] Nmap — Network mapper — READY',
+  '[TOOL] Metasploit — Exploit framework — READY',
+  '[TOOL] SQLmap — SQL injection — READY',
+  '[TOOL] Burp Suite — Web proxy — READY',
+  '[TOOL] Social Engineering Toolkit — READY',
+  '[TOOL] Website Downer — DoS engine — READY',
+  '[TOOL] FB Toolkit — Profile analyzer — READY',
+  '[TOOL] SMTP/SMS/CALL bomber — READY',
+  '[AUTH] User: Saiful Islam Sami [CEO / Cyber 54]',
+  '[AUTH] License: VIP ∞ — Unlimited',
+  '[AUTH] Authorization: GRANTED',
+  '[SYS] Initializing display engine...',
+  '[SYS] Loading cinematic gateway...',
+  '[SYS] ████████████████████████████████ 100%',
+  '[SYS] System ready. Welcome, Saiful.'
+];
+
+var lineIdx = 0;
+
+function cinematicBoot(){
+  var codeEl = document.getElementById('loaderCode');
+  codeEl.innerHTML = '';
+  lineIdx = 0;
+  
+  function typeLine(){
+    if(lineIdx < codeLines.length){
+      var line = codeLines[lineIdx];
+      var charIdx = 0;
+      var p = document.createElement('div');
+      if(line.indexOf('OK') > -1 || line.indexOf('READY') > -1 || line.indexOf('GRANTED') > -1 || line.indexOf('100%') > -1){
+        p.style.color = '#00ff88';
+      } else if(line.indexOf('AUTH') > -1){
+        p.style.color = '#ffcc00';
+      } else {
+        p.style.color = 'rgba(0,240,255,0.15)';
+      }
+      p.style.fontSize = '11px';
+      p.style.marginBottom = '2px';
+      p.style.fontFamily = 'monospace';
+      codeEl.appendChild(p);
+      
+      function typeChar(){
+        if(charIdx < line.length){
+          p.textContent += line.charAt(charIdx);
+          charIdx++;
+          setTimeout(typeChar, 8 + Math.random() * 12);
+        } else {
+          if(line.indexOf('100%') > -1){
+            setTimeout(function(){
+              document.getElementById('loaderFinal').classList.add('show');
+              setTimeout(function(){
+                document.getElementById('loaderStatus').textContent = 'SYSTEM ACTIVE';
+                setTimeout(function(){
+                  document.getElementById('loaderOverlay').classList.remove('active');
+                  document.getElementById('mainContainer').classList.add('visible');
+                  document.getElementById('topBar').classList.add('open');
+                  document.getElementById('bottomBar').classList.add('open');
+                  document.getElementById('currentTool').textContent = 'Ready';
+                  addLog('⚡ Cyber 54 — System fully operational','s');
+                  addLog('👑 Welcome, Saiful Islam Sami — CEO, Cyber 54','h');
+                  showNotif('SYSTEM ACTIVE','⚡ Cyber 54 Server Active — All tools ready','success');
+                }, 600);
+              }, 800);
+            }, 400);
+          }
+          lineIdx++;
+          setTimeout(typeLine, 40);
+        }
+      }
+      typeChar();
+    }
+  }
+  typeLine();
+}
+
+document.getElementById('sessionId').textContent = 'C54-' + Math.random().toString(16).slice(2,10).toUpperCase();
+
+var notifTimeout;
+function showNotif(title, msg, type){
+  var el = document.getElementById('notif');
+  document.getElementById('nTitle').textContent = title;
+  document.getElementById('nMsg').textContent = msg;
+  if(type === 'success') el.style.borderColor = 'rgba(0,255,136,0.2)';
+  else if(type === 'error') el.style.borderColor = 'rgba(255,50,80,0.2)';
+  else el.style.borderColor = 'rgba(0,240,255,0.08)';
+  el.classList.add('show');
+  if(notifTimeout) clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(function(){ el.classList.remove('show'); }, 4000);
+}
+
+function toggleAdmin(){
+  document.getElementById('adminPanel').classList.toggle('open');
+}
+
+// ============== TOOL DATABASE ==============
+var toolsDB = {
+  wifi: [
+    {id:'aircrack',icon:'📡',name:'Aircrack-ng',desc:'WEP/WPA2 PSK cracking suite',cat:'wifi',
+     inputs:[{id:'w_bssid',lbl:'BSSID (MAC)',bn:'বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'},
+             {id:'w_channel',lbl:'Channel',bn:'চ্যানেল',type:'text',val:'6'},
+             {id:'w_handshake',lbl:'Handshake File',bn:'হ্যান্ডশেক ফাইল',type:'text',val:'/root/handshake.cap'},
+             {id:'w_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/rockyou.txt'}],
+     action:'runAircrack'},
+    {id:'reaver',icon:'🔓',name:'Reaver',desc:'WPS PIN brute-force attack',cat:'wifi',
+     inputs:[{id:'r_bssid',lbl:'BSSID',bn:'বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'},
+             {id:'r_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'},
+             {id:'r_timeout',lbl:'Timeout (s)',bn:'টাইমআউট',type:'text',val:'120'}],
+     action:'runReaver'},
+    {id:'wifite',icon:'⚡',name:'Wifite',desc:'Automated WiFi auditor',cat:'wifi',
+     inputs:[{id:'wf_interface',lbl:'Monitor Interface',bn:'মনিটর ইন্টারফেস',type:'text',val:'wlan0mon'},
+             {id:'wf_target',lbl:'Target BSSID',bn:'টার্গেট বিএসএসআইডি',type:'text',val:'all'}],
+     action:'runWifite'},
+    {id:'fluxion',icon:'🎯',name:'Fluxion',desc:'Rogue AP evil twin attack',cat:'wifi',
+     inputs:[{id:'fl_ssid',lbl:'Target SSID',bn:'টার্গেট এসএসআইডি',type:'text',val:'Free_WiFi'},
+             {id:'fl_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runFluxion'},
+    {id:'kismet',icon:'📊',name:'Kismet',desc:'Wireless IDS & sniffer',cat:'wifi',
+     inputs:[{id:'ki_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runKismet'},
+    {id:'bettercap',icon:'🕸️',name:'Bettercap',desc:'WiFi/BLE MITM framework',cat:'wifi',
+     inputs:[{id:'bc_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.1'},
+             {id:'bc_gateway',lbl:'Gateway',bn:'গেটওয়ে',type:'text',val:'192.168.1.254'}],
+     action:'runBettercap'},
+    {id:'wifiphisher',icon:'🎣',name:'Wifiphisher',desc:'Phishing rogue AP',cat:'wifi',
+     inputs:[{id:'wp_ssid',lbl:'Fake SSID',bn:'ফেক এসএসআইডি',type:'text',val:'Free Airport WiFi'},
+             {id:'wp_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runWifiphisher'},
+    {id:'airgeddon',icon:'🔥',name:'Airgeddon',desc:'Multi-function wireless auditor',cat:'wifi',
+     inputs:[{id:'ag_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runAirgeddon'},
+    {id:'cowpatty',icon:'🐄',name:'Cowpatty',desc:'WPA2 PSK brute-force',cat:'wifi',
+     inputs:[{id:'cp_handshake',lbl:'Handshake',bn:'হ্যান্ডশেক',type:'text',val:'handshake.cap'},
+             {id:'cp_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/rockyou.txt'},
+             {id:'cp_ssid',lbl:'SSID',bn:'এসএসআইডি',type:'text',val:'FreeWiFi'}],
+     action:'runCowpatty'},
+    {id:'fern',icon:'🌿',name:'Fern WiFi Cracker',desc:'GUI WEP/WPA/WPS cracker',cat:'wifi',
+     inputs:[{id:'fn_bssid',lbl:'BSSID',bn:'বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'}],
+     action:'runFern'},
+    {id:'wash',icon:'🧹',name:'Wash (WPS)',desc:'WPS-enabled AP scanner',cat:'wifi',
+     inputs:[{id:'ws_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runWash'},
+    {id:'bully',icon:'👊',name:'Bully',desc:'WPS brute-force (Pixie)',cat:'wifi',
+     inputs:[{id:'bl_bssid',lbl:'BSSID',bn:'বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'},
+             {id:'bl_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runBully'},
+    {id:'pixiewps',icon:'✨',name:'PixieWPS',desc:'WPS offline brute-force',cat:'wifi',
+     inputs:[{id:'px_bssid',lbl:'BSSID',bn:'বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'},
+             {id:'px_pin',lbl:'PKE (from Reaver)',bn:'পিকেই',type:'text',val:'...'}],
+     action:'runPixiewps'},
+    {id:'mdk4',icon:'💣',name:'MDK4',desc:'WiFi DoS & deauth',cat:'wifi',
+     inputs:[{id:'md_bssid',lbl:'Target BSSID',bn:'টার্গেট বিএসএসআইডি',type:'text',val:'00:11:22:33:44:55'},
+             {id:'md_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runMdk4'},
+    {id:'hcxdumptool',icon:'💾',name:'Hcxdumptool',desc:'Capture PMKID/handshakes',cat:'wifi',
+     inputs:[{id:'hx_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'},
+             {id:'hx_output',lbl:'Output File',bn:'আউটপুট ফাইল',type:'text',val:'/root/capture.pcapng'}],
+     action:'runHcxdump'},
+    {id:'hashcat_wifi',icon:'🔑',name:'Hashcat (WiFi)',desc:'GPU-accelerated PMKID cracking',cat:'wifi',
+     inputs:[{id:'hc_hashfile',lbl:'Hash File',bn:'হ্যাশ ফাইল',type:'text',val:'/root/pmkid.txt'},
+             {id:'hc_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/rockyou.txt'}],
+     action:'runHashcatWifi'},
+    {id:'wifi_scan',icon:'📶',name:'WiFi Scanner',desc:'Scan nearby SSIDs & channels',cat:'wifi',
+     inputs:[{id:'ws_iface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0'}],
+     action:'runWifiScan'},
+    {id:'eaphammer',icon:'🔨',name:'EAPHammer',desc:'WPA2-EAP evil twin',cat:'wifi',
+     inputs:[{id:'eh_ssid',lbl:'SSID',bn:'এসএসআইডি',type:'text',val:'CorporateWiFi'},
+             {id:'eh_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'wlan0mon'}],
+     action:'runEaphammer'}
+  ],
+  web: [
+    {id:'nmap',icon:'🗺️',name:'Nmap',desc:'Port scanner & service enum',cat:'web',
+     inputs:[{id:'nm_target',lbl:'Target IP/Domain',bn:'টার্গেট',type:'text',val:'192.168.1.1'},
+             {id:'nm_ports',lbl:'Ports',bn:'পোর্ট',type:'text',val:'1-1000'},
+             {id:'nm_flags',lbl:'Flags',bn:'ফ্ল্যাগ',type:'text',val:'-sV -sC -O'}],
+     action:'runNmap'},
+    {id:'burp',icon:'🕵️',name:'Burp Suite',desc:'Web proxy & scanner',cat:'web',
+     inputs:[{id:'bp_target',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'https://example.com'},
+             {id:'bp_port',lbl:'Proxy Port',bn:'প্রক্সি পোর্ট',type:'text',val:'8080'}],
+     action:'runBurp'},
+    {id:'sqlmap',icon:'💉',name:'SQLmap',desc:'Auto SQL injection',cat:'web',
+     inputs:[{id:'sq_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com/page?id=1'},
+             {id:'sq_level',lbl:'Risk Level (1-5)',bn:'রিস্ক লেভেল',type:'text',val:'3'}],
+     action:'runSqlmap'},
+    {id:'nikto',icon:'🔍',name:'Nikto',desc:'Web server vulnerability scan',cat:'web',
+     inputs:[{id:'nk_target',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runNikto'},
+    {id:'gobuster',icon:'💥',name:'Gobuster',desc:'Directory/file brute-force',cat:'web',
+     inputs:[{id:'gb_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'},
+             {id:'gb_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt'}],
+     action:'runGobuster'},
+    {id:'wpscan',icon:'🔴',name:'WPScan',desc:'WordPress vulnerability scanner',cat:'web',
+     inputs:[{id:'wp_url',lbl:'WordPress URL',bn:'ডব্লিউপি ইউআরএল',type:'text',val:'http://example.com/wp'}],
+     action:'runWpscan'},
+    {id:'dirb',icon:'📂',name:'Dirb',desc:'Content discovery scanner',cat:'web',
+     inputs:[{id:'dr_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runDirb'},
+    {id:'ffuf',icon:'🚀',name:'FFUF',desc:'Fast web fuzzer',cat:'web',
+     inputs:[{id:'ff_url',lbl:'Target URL (FUZZ)',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com/FUZZ'},
+             {id:'ff_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/common.txt'}],
+     action:'runFfuf'},
+    {id:'zap',icon:'⚡',name:'OWASP ZAP',desc:'Web app scanner (passive)',cat:'web',
+     inputs:[{id:'zp_target',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runZap'},
+    {id:'arachni',icon:'🕷️',name:'Arachni',desc:'Web app security scanner',cat:'web',
+     inputs:[{id:'ar_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runArachni'},
+    {id:'commix',icon:'💻',name:'Commix',desc:'Command injection tester',cat:'web',
+     inputs:[{id:'cm_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com/page?cmd=test'}],
+     action:'runCommix'},
+    {id:'xsser',icon:'🛡️',name:'XSSer',desc:'Cross-site scripting framework',cat:'web',
+     inputs:[{id:'xs_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com/search?q='}],
+     action:'runXsser'},
+    {id:'whatweb',icon:'🌐',name:'WhatWeb',desc:'CMS & technology identifier',cat:'web',
+     inputs:[{id:'ww_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runWhatweb'},
+    {id:'wafw00f',icon:'🚧',name:'Wafw00f',desc:'WAF detection tool',cat:'web',
+     inputs:[{id:'wf_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'}],
+     action:'runWafw00f'}
+  ],
+  social: [
+    {id:'set',icon:'🎭',name:'SET',desc:'Phishing & credential harvester',cat:'social',
+     inputs:[{id:'se_target',lbl:'Target Email/Phone',bn:'টার্গেট',type:'text',val:'target@example.com'},
+             {id:'se_template',lbl:'Phish Template',bn:'টেমপ্লেট',type:'select',opts:['Google Login','Facebook Login','Microsoft 365'],val:'Google Login'}],
+     action:'runSet'},
+    {id:'gophish',icon:'🐟',name:'GoPhish',desc:'Email phishing campaign',cat:'social',
+     inputs:[{id:'gp_target',lbl:'Target List',bn:'টার্গেট লিস্ট',type:'text',val:'targets.csv'}],
+     action:'runGophish'},
+    {id:'beef',icon:'🐂',name:'BeEF',desc:'Browser exploitation framework',cat:'social',
+     inputs:[{id:'bf_url',lbl:'Hook URL',bn:'হুক ইউআরএল',type:'text',val:'http://your-ip:3000/hook.js'}],
+     action:'runBeef'},
+    {id:'evilginx',icon:'🎣',name:'Evilginx',desc:'Reverse proxy phishing',cat:'social',
+     inputs:[{id:'eg_domain',lbl:'Phishing Domain',bn:'ফিশিং ডোমেইন',type:'text',val:'secure-login.com'}],
+     action:'runEvilginx'}
+  ],
+  network: [
+    {id:'wireshark',icon:'🦈',name:'Wireshark',desc:'Network packet analyzer',cat:'network',
+     inputs:[{id:'ws_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'eth0'}],
+     action:'runWireshark'},
+    {id:'tcpdump',icon:'📥',name:'Tcpdump',desc:'CLI packet capture',cat:'network',
+     inputs:[{id:'td_interface',lbl:'Interface',bn:'ইন্টারফেস',type:'text',val:'eth0'}],
+     action:'runTcpdump'},
+    {id:'ettercap',icon:'🎭',name:'Ettercap',desc:'MITM & ARP poisoning',cat:'network',
+     inputs:[{id:'et_target1',lbl:'Target 1 IP',bn:'টার্গেট ১',type:'text',val:'192.168.1.100'},
+             {id:'et_target2',lbl:'Target 2 (Gateway)',bn:'টার্গেট ২',type:'text',val:'192.168.1.254'}],
+     action:'runEttercap'},
+    {id:'netcat',icon:'💻',name:'Netcat',desc:'TCP/UDP Swiss army knife',cat:'network',
+     inputs:[{id:'nc_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.1'},
+             {id:'nc_port',lbl:'Port',bn:'পোর্ট',type:'text',val:'4444'}],
+     action:'runNetcat'},
+    {id:'masscan',icon:'💨',name:'Masscan',desc:'Mass port scanner (fast)',cat:'network',
+     inputs:[{id:'ms_range',lbl:'IP Range',bn:'আইপি রেঞ্জ',type:'text',val:'192.168.1.0/24'},
+             {id:'ms_ports',lbl:'Ports',bn:'পোর্ট',type:'text',val:'80,443,22,21'}],
+     action:'runMasscan'},
+    {id:'netdiscover',icon:'🔎',name:'Netdiscover',desc:'ARP-based host discovery',cat:'network',
+     inputs:[{id:'nd_range',lbl:'Network Range',bn:'নেটওয়ার্ক',type:'text',val:'192.168.1.0/24'}],
+     action:'runNetdiscover'}
+  ],
+  exploit: [
+    {id:'metasploit',icon:'💣',name:'Metasploit',desc:'Exploit development framework',cat:'exploit',
+     inputs:[{id:'ms_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.100'},
+             {id:'ms_port',lbl:'Target Port',bn:'পোর্ট',type:'text',val:'445'}],
+     action:'runMetasploit'},
+    {id:'empire',icon:'👑',name:'Empire',desc:'Post-exploitation framework',cat:'exploit',
+     inputs:[{id:'em_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.100'}],
+     action:'runEmpire'},
+    {id:'powersploit',icon:'⚡',name:'PowerSploit',desc:'PowerShell post-exploit',cat:'exploit',
+     inputs:[{id:'ps_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.100'}],
+     action:'runPowerSploit'},
+    {id:'shellter',icon:'🐚',name:'Shellter',desc:'Dynamic PE injector (AV bypass)',cat:'exploit',
+     inputs:[{id:'sh_target',lbl:'Target EXE',bn:'টার্গেট ইএক্সই',type:'text',val:'/root/setup.exe'}],action:'runShellter'}
+  ],
+  crack: [
+    {id:'hydra',icon:'🐍',name:'Hydra',desc:'Network login brute-forcer',cat:'crack',
+     inputs:[{id:'hy_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.100'},
+             {id:'hy_service',lbl:'Service',bn:'সার্ভিস',type:'select',opts:['ssh','ftp','rdp','http-post-form'],val:'ssh'},
+             {id:'hy_userlist',lbl:'User List',bn:'ইউজার লিস্ট',type:'text',val:'/root/users.txt'},
+             {id:'hy_passlist',lbl:'Pass List',bn:'পাস লিস্ট',type:'text',val:'/root/passwords.txt'}],
+     action:'runHydra'},
+    {id:'john',icon:'🔨',name:'John the Ripper',desc:'Password hash cracker',cat:'crack',
+     inputs:[{id:'jh_hashfile',lbl:'Hash File',bn:'হ্যাশ ফাইল',type:'text',val:'/root/hashes.txt'},
+             {id:'jh_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/rockyou.txt'}],
+     action:'runJohn'},
+    {id:'hashcat',icon:'💥',name:'Hashcat',desc:'GPU hash cracker',cat:'crack',
+     inputs:[{id:'hc_hashfile',lbl:'Hash File',bn:'হ্যাশ ফাইল',type:'text',val:'/root/hashes.txt'},
+             {id:'hc_wordlist',lbl:'Wordlist',bn:'ওয়ার্ডলিস্ট',type:'text',val:'/usr/share/wordlists/rockyou.txt'}],
+     action:'runHashcat'},
+    {id:'medusa',icon:'🦑',name:'Medusa',desc:'Parallel brute-force login',cat:'crack',
+     inputs:[{id:'md_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.100'},
+             {id:'md_service',lbl:'Service',bn:'সার্ভিস',type:'select',opts:['ssh','ftp','rdp'],val:'ssh'}],
+     action:'runMedusa'},
+    {id:'cewl',icon:'🕷️',name:'CeWL',desc:'Custom wordlist generator',cat:'crack',
+     inputs:[{id:'cw_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'},
+             {id:'cw_depth',lbl:'Depth',bn:'ডেপথ',type:'text',val:'2'}],
+     action:'runCewl'}
+  ],
+  osint: [
+    {id:'theharvester',icon:'🌾',name:'theHarvester',desc:'Email & subdomain enum',cat:'osint',
+     inputs:[{id:'th_domain',lbl:'Domain',bn:'ডোমেইন',type:'text',val:'example.com'}],
+     action:'runTheHarvester'},
+    {id:'reconng',icon:'🔄',name:'Recon-ng',desc:'Full reconnaissance framework',cat:'osint',
+     inputs:[{id:'rn_target',lbl:'Target Domain',bn:'টার্গেট ডোমেইন',type:'text',val:'example.com'}],
+     action:'runReconng'},
+    {id:'shodan',icon:'🔦',name:'Shodan',desc:'Internet-connected device search',cat:'osint',
+     inputs:[{id:'sd_query',lbl:'Search Query',bn:'সার্চ কোয়েরি',type:'text',val:'port:22 country:BD'}],
+     action:'runShodan'},
+    {id:'google_dork',icon:'🔍',name:'Google Dorking',desc:'Advanced Google dork queries',cat:'osint',
+     inputs:[{id:'gd_query',lbl:'Dork Query',bn:'ডর্ক কোয়েরি',type:'text',val:'site:example.com filetype:pdf'}],
+     action:'runGoogleDork'},
+    {id:'whois',icon:'📋',name:'Whois Lookup',desc:'Domain/IP registration info',cat:'osint',
+     inputs:[{id:'wi_target',lbl:'Domain/IP',bn:'ডোমেইন/আইপি',type:'text',val:'example.com'}],
+     action:'runWhois'},
+    {id:'sherlock',icon:'🔎',name:'Sherlock',desc:'Username search (social media)',cat:'osint',
+     inputs:[{id:'sh_username',lbl:'Username',bn:'ইউজারনেম',type:'text',val:'target_user'}],
+     action:'runSherlock'}
+  ],
+  down: [
+    {id:'website_down',icon:'⛔',name:'Website Downer',desc:'Take down target website',cat:'down',
+     inputs:[{id:'wd_url',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'},
+             {id:'wd_method',lbl:'Method',bn:'মেথড',type:'select',opts:['HTTP Flood','SYN Flood','Slowloris','HULK'],val:'HTTP Flood'},
+             {id:'wd_threads',lbl:'Threads',bn:'থ্রেড',type:'text',val:'50'}],
+     action:'runWebsiteDown'},
+    {id:'slowloris',icon:'🐢',name:'Slowloris',desc:'Slow HTTP DoS attack',cat:'down',
+     inputs:[{id:'sl_target',lbl:'Target URL',bn:'টার্গেট ইউআরএল',type:'text',val:'http://example.com'},
+             {id:'sl_sockets',lbl:'Sockets',bn:'সকেট',type:'text',val:'200'}],
+     action:'runSlowloris'},
+    {id:'hping3',icon:'⚔️',name:'HPing3',desc:'Packet crafting & DoS',cat:'down',
+     inputs:[{id:'hp_target',lbl:'Target IP',bn:'টার্গেট আইপি',type:'text',val:'192.168.1.1'},
+             {id:'hp_port',lbl:'Port',bn:'পোর্ট',type:'text',val:'80'}],
+     action:'runHping3'}
+  ],
+  fb: [
+    {id:'fb_downloader',icon:'📥',name:'FB Downloader',desc:'Download FB video/photo/story',cat:'fb',
+     inputs:[{id:'fb_url',lbl:'Post URL',bn:'পোস্ট ইউআরএল',type:'text',val:'https://facebook.com/user/posts/123'},
+             {id:'fb_type',lbl:'Content Type',bn:'টাইপ',type:'select',opts:['Video','Photo','Story'],val:'Video'}],
+     action:'runFbDownloader'},
+    {id:'fb_id_remove',icon:'🗑️',name:'FB ID Remove',desc:'Remove Facebook account',cat:'fb',
+     inputs:[{id:'fr_target',lbl:'Target FB ID/Email',bn:'টার্গেট',type:'text',val:'target@example.com'},
+             {id:'fr_reason',lbl:'Reason',bn:'রিজন',type:'select',opts:['Impersonation','Harassment','Fake Account'],val:'Impersonation'}],
+     action:'runFbIdRemove'},
+    {id:'fb_copyright',icon:'©️',name:'FB Copyright Tool',desc:'File copyright claim',cat:'fb',
+     inputs:[{id:'fc_url',lbl:'Content URL',bn:'কন্টেন্ট ইউআরএল',type:'text',val:'https://facebook.com/video/123'}],
+     action:'runFbCopyright'}
+  ]
+};
+
+// ============== RENDER TOOLS ==============
+var allTools = [];
+for(var cat in toolsDB){
+  for(var i=0;i<toolsDB[cat].length;i++){
+    var t = toolsDB[cat][i];
+    t.cat = cat;
+    allTools.push(t);
+  }
+}
+
+var selectedTool = null;
+var currentCategory = 'all';
+
+function switchCat(cat){
+  currentCategory = cat;
+  var tabs = document.querySelectorAll('.cat-tab');
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+  var found = null;
+  for(var i=0;i<tabs.length;i++){
+    if(tabs[i].getAttribute('onclick') && tabs[i].getAttribute('onclick').indexOf(cat) > -1){
+      tabs[i].classList.add('active');
+    }
+  }
+  renderTools();
+}
+
+function renderTools(){
+  var grid = document.getElementById('toolsGrid');
+  grid.innerHTML = '';
+  var tools = currentCategory === 'all' ? allTools : (toolsDB[currentCategory] || []);
+  for(var i=0;i<tools.length;i++){
+    var t = tools[i];
+    var card = document.createElement('div');
+    card.className = 'tool-card';
+    if(selectedTool && selectedTool.id === t.id) card.className += ' selected';
+    card.innerHTML = '<div class="icon">' + t.icon + '</div><div class="name">' + t.name + '</div><div class="desc">' + t.desc + '</div><div class="status"></div>';
+    card.onclick = (function(tool){ return function(){ selectTool(tool); }; })(t);
+    grid.appendChild(card);
+  }
+  if(tools.length === 0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:rgba(0,240,255,0.08);font-family:Orbitron;font-size:10px;">No tools in this category</div>';
+  }
+}
+
+function selectTool(t){
+  selectedTool = t;
+  var cards = document.querySelectorAll('.tool-card');
+  for(var i=0;i<cards.length;i++) cards[i].classList.remove('selected');
+  for(var i=0;i<cards.length;i++){
+    if(cards[i].querySelector('.name').textContent === t.name) cards[i].classList.add('selected');
+  }
+  document.getElementById('currentTool').textContent = t.name;
+  showWorkspace(t);
+}
+
+function showWorkspace(t){
+  var ws = document.getElementById('workspaceContent');
+  var html = '<div class="workspace-title">⚡ [ ' + t.icon + ' ' + t.name + ' ] — ' + t.desc + '</div>';
+  html += '<div class="input-row">';
+  for(var i=0;i<t.inputs.length;i++){
+    var inp = t.inputs[i];
+    var inpEl = '';
+    if(inp.type === 'select'){
+      var opts = '';
+      for(var j=0;j<inp.opts.length;j++){
+        opts += '<option value="' + inp.opts[j] + '"';
+        if(inp.opts[j] === inp.val) opts += ' selected';
+        opts += '>' + inp.opts[j] + '</option>';
+      }
+      inpEl = '<select id="' + inp.id + '">' + opts + '</select>';
+    } else {
+      inpEl = '<input type="' + inp.type + '" id="' + inp.id + '" value="' + inp.val + '" placeholder="' + inp.lbl + '">';
+    }
+    html += '<div class="input-group"><label>' + inp.lbl + '</label><span class="bn-label">' + (inp.bn||'') + '</span>' + inpEl + '</div>';
+  }
+  html += '</div><div class="actions">';
+  html += '<button class="btn primary" onclick="runTool(\'' + t.action + '\')">⚡ EXECUTE</button>';
+  html += '<button class="btn danger" onclick="stopCurrentOp()">■ STOP</button>';
+  html += '</div>';
+  ws.innerHTML = html;
+  addLog('🔧 Selected: ' + t.name,'i');
+}
+
+// ============== EXECUTION ENGINE ==============
+var isRunning = false;
+var currentOp = null;
+
+function stopCurrentOp(){
+  if(currentOp) clearInterval(currentOp);
+  isRunning = false;
+  currentOp = null;
+  var btns = document.querySelectorAll('.btn.primary');
+  for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+  var dbtns = document.querySelectorAll('.btn.danger');
+  for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+  hideProgress();
+  addLog('⛔ Operation stopped by user','h');
+  document.getElementById('currentTool').textContent = 'Standby';
+}
+
+function showProgress(action, duration){
+  var wrap = document.getElementById('progWrap');
+  var fill = document.getElementById('progFill');
+  document.getElementById('progAction').textContent = action;
+  wrap.classList.add('active');
+  fill.style.width = '0%';
+  var p = 0;
+  var step = 100 / (duration / 50);
+  if(window._progInt) clearInterval(window._progInt);
+  window._progInt = setInterval(function(){
+    p += step;
+    if(p >= 100){ p = 100; clearInterval(window._progInt); }
+    fill.style.width = Math.min(p,100) + '%';
+    document.getElementById('progPercent').textContent = Math.floor(Math.min(p,100)) + '%';
+  }, 50);
+}
+
+function hideProgress(){
+  document.getElementById('progWrap').classList.remove('active');
+  if(window._progInt) clearInterval(window._progInt);
+}
+
+function addLog(msg, type){
+  if(!type) type = 'i';
+  var con = document.getElementById('console');
+  var now = new Date();
+  var ts = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  var div = document.createElement('div');
+  div.className = 'ln ' + type;
+  div.innerHTML = '<span class="ts">[' + ts + ']</span> ' + msg;
+  con.appendChild(div);
+  con.scrollTop = con.scrollHeight;
+  if(con.children.length > 60) con.removeChild(con.firstChild);
+}
+
+function runTool(action){
+  if(isRunning){ showNotif('BUSY','Another operation is running','error'); return; }
+  if(!selectedTool){ showNotif('ERROR','No tool selected','error'); return; }
+  var inputs = {};
+  for(var i=0;i<selectedTool.inputs.length;i++){
+    var inp = selectedTool.inputs[i];
+    var el = document.getElementById(inp.id);
+    inputs[inp.id] = el ? el.value : '';
+  }
+  isRunning = true;
+  var btns = document.querySelectorAll('.btn.primary');
+  for(var i=0;i<btns.length;i++) btns[i].disabled = true;
+  var dbtns = document.querySelectorAll('.btn.danger');
+  for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = false;
+  
+  if(action === 'runAircrack') runAircrack(inputs);
+  else if(action === 'runReaver') runReaver(inputs);
+  else if(action === 'runWifite') runWifite(inputs);
+  else if(action === 'runWebsiteDown') runWebsiteDown(inputs);
+  else if(action === 'runFbDownloader') runFbDownloader(inputs);
+  else if(action === 'runFbIdRemove') runFbIdRemove(inputs);
+  else if(action === 'runNmap') runNmap(inputs);
+  else if(action === 'runHydra') runHydra(inputs);
+  else if(action === 'runSqlmap') runSqlmap(inputs);
+  else if(action === 'runMetasploit') runMetasploit(inputs);
+  else runGenericTool(inputs);
+}
+
+function runGenericTool(inputs){
+  var toolName = selectedTool.name;
+  addLog('═══ ' + toolName + ' START ═══','h');
+  showProgress(toolName + ' in progress', 5000);
+  var progress = 0;
+  currentOp = setInterval(function(){
+    progress++;
+    if(progress >= 7){
+      clearInterval(currentOp); currentOp = null;
+      isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('✅ ' + toolName + ' — Completed successfully','s');
+      showNotif('SUCCESS',toolName + ' completed','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress, 300);
+    }
+  }, 700);
+}
+
+function runAircrack(inputs){
+  addLog('═══ AIRCRACK-NG SUITE ═══','h');
+  addLog('📡 BSSID: ' + inputs.w_bssid + ' | Channel: ' + inputs.w_channel,'i');
+  showProgress('Cracking WPA2 handshake...', 8000);
+  var step = 0;
+  currentOp = setInterval(function(){
+    step++;
+    if(step < 5) addLog('📡 Step ' + step + '...','i');
+    else if(step === 5){
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('🔑 KEY FOUND: wifipass@54!','s');
+      addLog('✅ Aircrack-ng complete — WPA2 PSK recovered','s');
+      showNotif('CRACKED','WPA2 Key: wifipass@54!','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress,300);
+    }
+  },1600);
+}
+
+function runReaver(inputs){
+  addLog('═══ REAVER WPS ATTACK ═══','h');
+  addLog('🔓 Target BSSID: ' + inputs.r_bssid,'i');
+  showProgress('Brute-forcing WPS PIN...', 10000);
+  var pin = 0;
+  currentOp = setInterval(function(){
+    pin++;
+    if(pin % 3 === 0) addLog('🔓 Tried PIN ' + pin + '000 — testing...','i');
+    if(pin >= 9){
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('✅ WPS PIN: 12345670 — WPA Key recovered','s');
+      showNotif('SUCCESS','WPS PIN cracked!','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress,300);
+    }
+  },1100);
+}
+
+function runWifite(inputs){
+  addLog('═══ WIFITE AUTO ATTACK ═══','h');
+  addLog('⚡ Scanning on ' + inputs.wf_interface,'i');
+  showProgress('Wifite automated audit', 6000);
+  var s = 0;
+  var nets = ['FreeWiFi [CH6]','Home_Network [CH11]','OfficeNet [CH1]','Cafe_WiFi [CH3]'];
+  currentOp = setInterval(function(){
+    s++;
+    if(s <= 4) addLog('📶 Found: ' + nets[s-1],'s');
+    else {
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('✅ Wifite complete — 4 networks, 2 vulnerable (WPS)','s');
+      showNotif('SCAN DONE','4 networks found, 2 vulnerable','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress,300);
+    }
+  },1200);
+}
+
+function runWebsiteDown(inputs){
+  addLog('═══ WEBSITE DOWNER ═══','h');
+  addLog('⛔ Target: ' + inputs.wd_url,'i');
+  addLog('💥 Method: ' + inputs.wd_method + ' | Threads: ' + inputs.wd_threads,'i');
+  showProgress('Taking down website...', 6000);
+  addLog('⚡ Generating attack vectors...','h');
+  addLog('🔐 Payload: POST / HTTP/1.1 — X-Forwarded-For: random','i');
+  var c = 0;
+  currentOp = setInterval(function(){
+    c++;
+    if(c === 3) addLog('💥 Sending ' + inputs.wd_method + ' flood — ' + (c*20) + ' packets','e');
+    if(c === 6){
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('══════════════════════════════','h');
+      addLog('⛔ THIS WEBSITE IS DOWN NOW! ⛔','h');
+      addLog('⛔ Status: 503 Service Unavailable','h');
+      addLog('══════════════════════════════','h');
+      showNotif('WEBSITE DOWN',inputs.wd_url + ' is now OFFLINE','error');
+      document.getElementById('currentTool').textContent = '⛔ Website Down';
+      var ws = document.getElementById('workspaceContent');
+      ws.innerHTML += '<div class="actions" style="margin-top:10px;"><button class="btn success" onclick="bringWebsiteUp(\'' + inputs.wd_url + '\')">🔄 BRING WEBSITE UP</button></div>';
+      setTimeout(hideProgress,300);
+    }
+  },900);
+}
+
+function bringWebsiteUp(url){
+  addLog('🔄 Bringing website back online...','h');
+  showProgress('Restoring website...', 3000);
+  setTimeout(function(){
+    addLog('✅ Website ' + url + ' is BACK ONLINE','s');
+    addLog('✅ Service restored successfully','s');
+    showNotif('WEBSITE UP',url + ' is back online','success');
+    document.getElementById('currentTool').textContent = 'Ready';
+    hideProgress();
+    if(selectedTool) showWorkspace(selectedTool);
+  }, 3000);
+}
+
+function runFbDownloader(inputs){
+  addLog('═══ FACEBOOK DOWNLOADER ═══','h');
+  addLog('📥 URL: ' + inputs.fb_url + ' | Type: ' + inputs.fb_type,'i');
+  showProgress('Downloading Facebook content...', 5000);
+  addLog('⚡ Connecting to Facebook CDN...','i');
+  setTimeout(function(){
+    addLog('✅ Download complete!','s');
+    addLog('📁 File: FB_' + inputs.fb_type + '_' + Date.now() + '.mp4','s');
+    showNotif('DOWNLOADED',inputs.fb_type + ' saved successfully','success');
+    document.getElementById('currentTool').textContent = 'Ready';
+    isRunning = false;
+    var btns = document.querySelectorAll('.btn.primary');
+    for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+    var dbtns = document.querySelectorAll('.btn.danger');
+    for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+    hideProgress();
+  }, 5000);
+}
+
+function runFbIdRemove(inputs){
+  addLog('═══ FACEBOOK ID REMOVAL ═══','h');
+  addLog('🎯 Target: ' + inputs.fr_target + ' | Reason: ' + inputs.fr_reason,'i');
+  showProgress('Processing removal...', 6000);
+  addLog('⚡ Generating high-level abuse report...','h');
+  setTimeout(function(){
+    addLog('📋 Report submitted to Facebook Trust & Safety','s');
+    addLog('⏳ Account flagged for review — 24-48 hours','h');
+    showNotif('REPORTED',inputs.fr_target + ' reported successfully','success');
+    document.getElementById('currentTool').textContent = 'Ready';
+    isRunning = false;
+    var btns = document.querySelectorAll('.btn.primary');
+    for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+    var dbtns = document.querySelectorAll('.btn.danger');
+    for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+    hideProgress();
+  }, 6000);
+}
+
+function runNmap(inputs){
+  addLog('═══ NMAP SCAN ═══','h');
+  addLog('🎯 Target: ' + inputs.nm_target + ' | Ports: ' + inputs.nm_ports,'i');
+  showProgress('Scanning...', 4000);
+  var p = 0;
+  var ports = [22,80,443,3306,8080];
+  currentOp = setInterval(function(){
+    p++;
+    if(p <= 5) addLog('🔍 Port ' + ports[p-1] + ': OPEN','s');
+    else {
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('✅ Nmap complete — 5 ports open','s');
+      showNotif('SCAN DONE',inputs.nm_target + ' scanned','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress,300);
+    }
+  },700);
+}
+
+function runHydra(inputs){
+  addLog('═══ HYDRA BRUTE FORCE ═══','h');
+  addLog('🎯 Target: ' + inputs.hy_target + ':' + inputs.hy_service,'i');
+  showProgress('Brute forcing...', 8000);
+  var a = 0;
+  currentOp = setInterval(function(){
+    a++;
+    if(a % 5 === 0) addLog('🐍 Tried ' + (a*5) + ' passwords...','i');
+    if(a >= 10){
+      clearInterval(currentOp); currentOp = null; isRunning = false;
+      var btns = document.querySelectorAll('.btn.primary');
+      for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+      var dbtns = document.querySelectorAll('.btn.danger');
+      for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+      addLog('✅ Password found: admin@54!','s');
+      showNotif('CRACKED','Credentials recovered!','success');
+      document.getElementById('currentTool').textContent = 'Standby';
+      setTimeout(hideProgress,300);
+    }
+  },800);
+}
+
+function runSqlmap(inputs){
+  addLog('═══ SQLMAP AUTO INJECTION ═══','h');
+  addLog('💉 Target: ' + inputs.sq_url,'i');
+  showProgress('Exploiting SQL injection...', 6000);
+  addLog('⚡ Testing parameter: id — INJECTABLE','s');
+  setTimeout(function(){
+    addLog('✅ Database: db_name [tables: users, posts, admin]','s');
+    addLog('✅ Dumped 5 admin credentials','s');
+    showNotif('INJECTED','Database compromised','success');
+    document.getElementById('currentTool').textContent = 'Standby';
+    isRunning = false;
+    var btns = document.querySelectorAll('.btn.primary');
+    for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+    var dbtns = document.querySelectorAll('.btn.danger');
+    for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+    hideProgress();
+  }, 6000);
+}
+
+function runMetasploit(inputs){
+  addLog('═══ METASPLOIT EXPLOIT ═══','h');
+  addLog('💣 Target: ' + inputs.ms_target + ':' + inputs.ms_port,'i');
+  showProgress('Exploiting...', 7000);
+  addLog('⚡ Sending exploit payload...','i');
+  addLog('⚡ Meterpreter session opening...','i');
+  setTimeout(function(){
+    addLog('✅ Meterpreter session 1 opened!','s');
+    addLog('💻 SYSTEM\\TARGET$ > whoami','s');
+    addLog('📡 nt authority\\system','s');
+    showNotif('EXPLOITED','Meterpreter session active','success');
+    document.getElementById('currentTool').textContent = 'Standby';
+    isRunning = false;
+    var btns = document.querySelectorAll('.btn.primary');
+    for(var i=0;i<btns.length;i++) btns[i].disabled = false;
+    var dbtns = document.querySelectorAll('.btn.danger');
+    for(var i=0;i<dbtns.length;i++) dbtns[i].disabled = true;
+    hideProgress();
+  }, 7000);
+}
+
+// ============== INIT ==============
+renderTools();
+addLog('🔒 System locked — waiting for security key','i');
+</script>
+</body>
+</html>
